@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>백분위 계산기</title>
+    <meta
+      property="og:description"
+      content="평균, 표준편차로 백분위를 계산하기"
+    />
+    <meta property="og:image" content="/favicon/apple-touch-icon-167x167.png" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#2c3e50"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#2c3e50"
+    />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="57x57"
+      href="./favicon/apple-touch-icon-57x57.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="114x114"
+      href="./favicon/apple-touch-icon-114x114.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="72x72"
+      href="./favicon/apple-touch-icon-72x72.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="144x144"
+      href="./favicon/apple-touch-icon-144x144.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="60x60"
+      href="./favicon/apple-touch-icon-60x60.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="120x120"
+      href="./favicon/apple-touch-icon-120x120.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="76x76"
+      href="./favicon/apple-touch-icon-76x76.png"
+    />
+    <link
+      rel="apple-touch-icon-precomposed"
+      sizes="152x152"
+      href="./favicon/apple-touch-icon-152x152.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="./favicon/favicon-196x196.png"
+      sizes="196x196"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="./favicon/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="./favicon/favicon-32x32.png"
+      sizes="32x32"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="./favicon/favicon-16x16.png"
+      sizes="16x16"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="./favicon/favicon-128.png"
+      sizes="128x128"
+    />
+  </head>
+  <!-- Google tag (gtag.js) -->
+  <script
+    async
+    src="https://www.googletagmanager.com/gtag/js?id=G-S4V94NGWCK"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+
+    gtag('config', 'G-S4V94NGWCK');
+  </script>
+  <link rel="stylesheet" href="./style.css" />
+  <body>
+    <div class="container">
+      <h1>백분위 계산기</h1>
+      <input id="score" type="number" placeholder="원점수 X" />
+      <input id="mean" type="number" placeholder="평균 μ" />
+      <input id="std" type="number" placeholder="표준편차 σ" />
+      <input id="n" type="number" placeholder="총 인원수 (선택)" />
+      <button onclick="calc()">계산하기</button>
+      <div class="result" id="output"></div>
+    </div>
+
+    <script>
+      function erf(x) {
+        const sign = x >= 0 ? 1 : -1;
+        x = Math.abs(x);
+        const a1 = 0.254829592,
+          a2 = -0.284496736,
+          a3 = 1.421413741,
+          a4 = -1.453152027,
+          a5 = 1.061405429,
+          p = 0.3275911;
+        const t = 1 / (1 + p * x);
+        const y =
+          1 -
+          ((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+        return sign * y;
+      }
+      function normalCDF(z) {
+        return (1 + erf(z / Math.sqrt(2))) / 2;
+      }
+      function percentile(X, mean, std) {
+        const z = (X - mean) / std;
+        return normalCDF(z) * 100;
+      }
+
+      function calc() {
+        const X = parseFloat(document.getElementById('score').value);
+        const mean = parseFloat(document.getElementById('mean').value);
+        const std = parseFloat(document.getElementById('std').value);
+        const n = parseFloat(document.getElementById('n').value);
+        const output = document.getElementById('output');
+
+        if (isNaN(X) || isNaN(mean) || isNaN(std)) {
+          output.innerHTML = '모든 값을 입력하세요.';
+          return;
+        }
+
+        const p = percentile(X, mean, std);
+        let result = `백분위: <b>${p.toFixed(2)}%</b>`;
+        if (!isNaN(n) && n > 0) {
+          const rank = n * (1 - p / 100);
+          result += `<br>예상 순위: <b>${Math.round(rank)}위</b> (상위 ${(
+            100 - p
+          ).toFixed(2)}%)`;
+        }
+        output.innerHTML = result;
+      }
+    </script>
+  </body>
+</html>
